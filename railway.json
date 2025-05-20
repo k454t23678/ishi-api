@@ -1,6 +1,6 @@
 {
   "build": {
-    "command": "ls -l && echo --- && ls -l /app && echo --- && cat main.py | head -n 5",
+    "command": "ls -l /app && echo --- && cat /app/main.py | head -n 5",
     "env": {
       "PYTHONUNBUFFERED": "1"
     }

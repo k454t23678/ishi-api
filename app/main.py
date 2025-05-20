@@ -1,32 +1,39 @@
 # app/main.py
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, Form
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from PIL import Image
-import io
+from anemia_detector.model_utils import load_model, predict_anemia
 
 app = FastAPI()
 
-# Allow CORS (important for Flutter app)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # You can tighten this later
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["*"], allow_credentials=True,
+    allow_methods=["*"], allow_headers=["*"],
 )
 
+model = load_model()
+
 @app.post("/predict")
-async def predict(file: UploadFile = File(...)):
+async def predict(
+    hemoglobin: float = Form(...),
+    mch: float = Form(...),
+    mchc: float = Form(...),
+    mcv: float = Form(...),
+    gender: int = Form(...)
+):
     try:
-        contents = await file.read()
-        image = Image.open(io.BytesIO(contents))
+        features = {
+            "Hemoglobin": hemoglobin,
+            "MCH": mch,
+            "MCHC": mchc,
+            "MCV": mcv,
+            "GENDER": gender
+        }
 
-        # TODO: Add real model inference here
-        result = {"anemic": False}  # Dummy response for now
-
-        return JSONResponse(content=result)
+        result = predict_anemia(model, features)
+        return {"anemic": result}
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
 

@@ -1,4 +1,6 @@
 fastapi
 uvicorn
 pillow
+pandas
+scikit-learn
 python-multipart
